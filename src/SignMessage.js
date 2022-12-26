@@ -1,6 +1,10 @@
-import { useState, useRef } from "react";
+
+import { useState, useRef, useEffect } from "react";
 import { ethers } from "ethers";
+import Axios, * as others from 'axios';
 import ErrorMessage from "./ErrorMessage";
+
+
 
 const signMessage = async ({ setError, message }) => {
   try {
@@ -25,59 +29,63 @@ const signMessage = async ({ setError, message }) => {
 };
 
 export default function SignMessage() {
+ 
   const resultBox = useRef();
   const [signatures, setSignatures] = useState([]);
   const [error, setError] = useState();
 
-  const handleSign = async (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
+  const register= async(uuid,walletAddress)=>{
+    const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
+    const res = await Axios.post('https://game-service-zu5i.onrender.com/user', json, {
+    headers: {
+          'Content-Type': 'application/json'
+        }
+    });
+
+    res.data.data; 
+    res.data.headers['Content-Type']; 
+    console.log("apiye yazıldı")
+  };
+
+  const handleSign = async (uuid) => {
+    
     setError();
     const sig = await signMessage({
       setError,
-      message: data.get("message")
+      message: uuid
     });
     if (sig) {
       setSignatures([...signatures, sig]);
+      console.log("imzalandı")
+      register(uuid,sig.address)
+
     }
   };
+
+  useEffect(()=>{
+   
+
+   const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    console.log(urlParams.get('id'))
+    handleSign(urlParams.get('id'))
+      
+      }, [])
 
   return (
     <form className="m-4" onSubmit={handleSign}>
       <div className="credit-card w-full shadow-lg mx-auto rounded-xl bg-white">
-        <main className="mt-4 p-4">
-          <h1 className="text-xl font-semibold text-gray-700 text-center">
-            Sign messages
-          </h1>
-          <div className="">
-            <div className="my-3">
-              <textarea
-                required
-                type="text"
-                name="message"
-                className="textarea w-full h-24 textarea-bordered focus:ring focus:outline-none"
-                placeholder="Message"
-              />
-            </div>
-          </div>
-        </main>
-        <footer className="p-4">
-          <button
-            type="submit"
-            className="btn btn-primary submit-button focus:ring focus:outline-none w-full"
-          >
-            Sign message
-          </button>
-          <ErrorMessage message={error} />
-        </footer>
+        
+       
         {signatures.map((sig, idx) => {
           return (
-            <div className="p-2" key={sig}>
               <div className="my-3">
+                <p>Thanks for Signing. You may return to game. Enjoy!</p>
                 <p>
-                  Message {idx + 1}: {sig.message}
+                  Signute Message: {sig.message}
                 </p>
                 <p>Signer: {sig.address}</p>
+                <p>Proof: </p>
                 <textarea
                   type="text"
                   readOnly
@@ -87,7 +95,6 @@ export default function SignMessage() {
                   value={sig.signature}
                 />
               </div>
-            </div>
           );
         })}
       </div>
