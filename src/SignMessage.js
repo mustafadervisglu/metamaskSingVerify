@@ -29,26 +29,26 @@ const signMessage = async ({ setError, message }) => {
 };
 
 export default function SignMessage() {
- 
+
   const resultBox = useRef();
   const [signatures, setSignatures] = useState([]);
   const [error, setError] = useState();
 
   const register= async(uuid,walletAddress)=>{
     const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
-    const res = await Axios.post('https://game-service-zu5i.onrender.com/user', json, {
+    const res = await Axios.post('https://game-service-drhg.onrender.com/user', json, {
     headers: {
           'Content-Type': 'application/json'
         }
     });
 
-    res.data.data; 
-    res.data.headers['Content-Type']; 
+    res.data.data;
+    res.data.headers['Content-Type'];
     console.log("apiye yazıldı")
   };
 
   const handleSign = async (uuid) => {
-    
+
     setError();
     const sig = await signMessage({
       setError,
@@ -63,20 +63,20 @@ export default function SignMessage() {
   };
 
   useEffect(()=>{
-   
+
 
    const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     console.log(urlParams.get('id'))
     handleSign(urlParams.get('id'))
-      
+
       }, [])
 
   return (
     <form className="m-4" onSubmit={handleSign}>
       <div className="credit-card w-full shadow-lg mx-auto rounded-xl bg-white">
-        
-       
+
+
         {signatures.map((sig, idx) => {
           return (
               <div className="my-3">
