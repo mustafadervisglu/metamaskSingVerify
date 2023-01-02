@@ -35,16 +35,20 @@ export default function SignMessage() {
   const [error, setError] = useState();
 
   const register= async(uuid,walletAddress)=>{
-    const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
-    const res = await Axios.post('https://game-service-drhg.onrender.com/user', json, {
-    headers: {
+    try {
+      const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
+      const res = await Axios.post('https://game-service-drhg.onrender.com/user', json, {
+        headers: {
           'Content-Type': 'application/json'
         }
-    });
+      });
 
-    res.data.data;
-    res.data.headers['Content-Type'];
-    console.log("apiye yazıldı")
+      res.data.data;
+      res.data.headers['Content-Type'];
+      console.log("apiye yazıldı")
+    }catch (e) {
+      console.log(e);
+    }
   };
 
   const handleSign = async (uuid) => {
