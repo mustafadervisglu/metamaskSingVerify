@@ -43,10 +43,8 @@ export default function SignMessage() {
           'Content-Type': 'application/json'
         }
       });
-
+      console.log(res);
       res.data.data;
-      res.data.headers['Content-Type'];
-      console.log(res.data);
     }catch (e) {
       console.log(e);
     }
