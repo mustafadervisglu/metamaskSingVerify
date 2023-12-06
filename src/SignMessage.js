@@ -46,6 +46,7 @@ export default function SignMessage() {
 
       res.data.data;
       res.data.headers['Content-Type'];
+      console.log(res.data);
     }catch (e) {
       console.log(e);
     }
