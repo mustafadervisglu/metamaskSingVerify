@@ -35,6 +35,7 @@ export default function SignMessage() {
   const [error, setError] = useState();
 
   const register= async(uuid,walletAddress)=>{
+    console.log("here");
     try {
       const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
       const res = await Axios.post('https://game-service-drhg.onrender.com/user', json, {
