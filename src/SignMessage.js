@@ -1,14 +1,34 @@
-
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import Axios, * as others from 'axios';
-import ErrorMessage from "./ErrorMessage";
+import Axios from 'axios';
 
+const polygonChainId = '0x89'; // Polygon Mainnet'in zincir ID'si
 
+const addPolygonNetwork = async () => {
+  try {
+    if (!window.ethereum) throw new Error("No crypto wallet found. Please install it.");
+
+    await window.ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [{
+        chainId: polygonChainId,
+        chainName: 'Polygon Mainnet',
+        nativeCurrency: {
+          name: 'MATIC',
+          symbol: 'MATIC',
+          decimals: 18
+        },
+        rpcUrls: ['https://rpc-mainnet.maticvigil.com/'],
+        blockExplorerUrls: ['https://polygonscan.com/']
+      }]
+    });
+  } catch (err) {
+    console.error("Error adding Polygon network:", err);
+  }
+};
 
 const signMessage = async ({ setError, message }) => {
   try {
-    console.log({ message });
     if (!window.ethereum)
       throw new Error("No crypto wallet found. Please install it.");
 
@@ -29,78 +49,60 @@ const signMessage = async ({ setError, message }) => {
 };
 
 export default function SignMessage() {
-
-  const resultBox = useRef();
   const [signatures, setSignatures] = useState([]);
-  const [error, setError] = useState();
+  const [error, setError] = useState("");
 
-  const register= async(uuid,walletAddress)=>{
-    console.log("here");
+  const register = async (uuid, walletAddress) => {
     try {
-      const json = JSON.stringify({ id: uuid , userAddress:walletAddress });
-      const res = await Axios.post('https://game-service-drhg.onrender.com/user', json, {
+      const json = JSON.stringify({ id: uuid, userAddress: walletAddress });
+      await Axios.post('https://game-service-drhg.onrender.com/user', json, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      console.log(res);
-      res.data.data;
-    }catch (e) {
-      console.log(e);
+    } catch (e) {
+      console.error("Error during API call:", e);
     }
   };
 
   const handleSign = async (uuid) => {
-
-    setError();
+    setError("");
     const sig = await signMessage({
       setError,
       message: uuid
     });
     if (sig) {
       setSignatures([...signatures, sig]);
-      console.log("imzalandı")
-      register(uuid,sig.address)
-
+      register(uuid, sig.address)
     }
   };
 
-  useEffect(()=>{
-
-
-   const queryString = window.location.search;
+  useEffect(() => {
+    addPolygonNetwork();
+    const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    console.log(urlParams.get('id'))
-    handleSign(urlParams.get('id'))
-
-      }, [])
+    const uuid = urlParams.get('id');
+    if (uuid) {
+      handleSign(uuid);
+    }
+  }, []);
 
   return (
-    <form className="m-4" onSubmit={handleSign}>
-      <div className="credit-card w-full shadow-lg mx-auto rounded-xl bg-white">
-
-
-        {signatures.map((sig, idx) => {
-          return (
-              <div className="my-3">
-                <p>Thanks for Signing. You may return to game. Enjoy!</p>
-                <p>
-                  Signute Message: {sig.message}
-                </p>
-                <p>Signer: {sig.address}</p>
-                <p>Proof: </p>
-                <textarea
-                  type="text"
+      <div className="sign-message">
+        {error && <p className="error-message">{error}</p>}
+        {signatures.map((sig, idx) => (
+            <div key={idx} className="signature-details">
+              <p>Thank you for signing. You may return to the game. Enjoy!</p>
+              <p>Message: {sig.message}</p>
+              <p>Signer: {sig.address}</p>
+              <p>Proof:</p>
+              <textarea
                   readOnly
-                  ref={resultBox}
-                  className="textarea w-full h-24 textarea-bordered focus:ring focus:outline-none"
-                  placeholder="Generated signature"
+                  className="signature-textarea"
                   value={sig.signature}
-                />
-              </div>
-          );
-        })}
+              />
+            </div>
+        ))}
       </div>
-    </form>
   );
 }
