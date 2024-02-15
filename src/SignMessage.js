@@ -54,7 +54,7 @@ export default function SignMessage() {
 
   const register = async (uuid, walletAddress) => {
     try {
-      const json = JSON.stringify({ id: uuid, userAddress: walletAddress });
+      const json = JSON.stringify({ matchId: uuid, userAddress: walletAddress });
       await Axios.post('https://wossk8w.84.247.185.219.sslip.io/user', json, {
         headers: {
           'Content-Type': 'application/json'
