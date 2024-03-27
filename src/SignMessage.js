@@ -1,26 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import Axios from 'axios';
+import Axios from "axios";
 
-const polygonChainId = '0x89'; // Polygon Mainnet'in zincir ID'si
+const polygonChainId = "0x89"; // Polygon Mainnet'in zincir ID'si
 
 const addPolygonNetwork = async () => {
   try {
-    if (!window.ethereum) throw new Error("No crypto wallet found. Please install it.");
+    if (!window.ethereum)
+      throw new Error("No crypto wallet found. Please install it.");
 
     await window.ethereum.request({
-      method: 'wallet_addEthereumChain',
-      params: [{
-        chainId: polygonChainId,
-        chainName: 'Polygon Mainnet',
-        nativeCurrency: {
-          name: 'MATIC',
-          symbol: 'MATIC',
-          decimals: 18
+      method: "wallet_addEthereumChain",
+      params: [
+        {
+          chainId: polygonChainId,
+          chainName: "Polygon Mainnet",
+          nativeCurrency: {
+            name: "MATIC",
+            symbol: "MATIC",
+            decimals: 18,
+          },
+          rpcUrls: ["https://rpc-mainnet.maticvigil.com/"],
+          blockExplorerUrls: ["https://polygonscan.com/"],
         },
-        rpcUrls: ['https://rpc-mainnet.maticvigil.com/'],
-        blockExplorerUrls: ['https://polygonscan.com/']
-      }]
+      ],
     });
   } catch (err) {
     console.error("Error adding Polygon network:", err);
@@ -41,7 +44,7 @@ const signMessage = async ({ setError, message }) => {
     return {
       message,
       signature,
-      address
+      address,
     };
   } catch (err) {
     setError(err.message);
@@ -54,11 +57,14 @@ export default function SignMessage() {
 
   const register = async (uuid, walletAddress) => {
     try {
-      const json = JSON.stringify({ matchId: uuid, userAddress: walletAddress });
-      await Axios.post('https://wossk8w.84.247.185.219.sslip.io/user', json, {
+      const json = JSON.stringify({
+        matchId: uuid,
+        userAddress: walletAddress,
+      });
+      await Axios.post("https://wossk8w.84.247.185.219.sslip.io/user", json, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
     } catch (e) {
       console.error("Error during API call:", e);
@@ -69,11 +75,11 @@ export default function SignMessage() {
     setError("");
     const sig = await signMessage({
       setError,
-      message: uuid
+      message: uuid,
     });
     if (sig) {
       setSignatures([...signatures, sig]);
-      register(uuid, sig.address)
+      register(uuid, sig.address);
     }
   };
 
@@ -81,28 +87,28 @@ export default function SignMessage() {
     addPolygonNetwork();
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const uuid = urlParams.get('id');
+    const uuid = urlParams.get("id");
     if (uuid) {
       handleSign(uuid);
     }
   }, []);
 
   return (
-      <div className="sign-message">
-        {error && <p className="error-message">{error}</p>}
-        {signatures.map((sig, idx) => (
-            <div key={idx} className="signature-details">
-              <p>Thank you for signing. You may return to the game. Enjoy!</p>
-              <p>Message: {sig.message}</p>
-              <p>Signer: {sig.address}</p>
-              <p>Proof:</p>
-              <textarea
-                  readOnly
-                  className="signature-textarea"
-                  value={sig.signature}
-              />
-            </div>
-        ))}
-      </div>
+    <div className="sign-message">
+      {error && <p className="error-message">{error}</p>}
+      {signatures.map((sig, idx) => (
+        <div key={idx} className="signature-details">
+          <p>Thank you for signing. You may return to the game. Enjoy!</p>
+          <p>Message: {sig.message}</p>
+          <p>Signer: {sig.address}</p>
+          <p>Proof:</p>
+          <textarea
+            readOnly
+            className="signature-textarea"
+            value={sig.signature}
+          />
+        </div>
+      ))}
+    </div>
   );
 }

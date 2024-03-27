@@ -1,3 +1,5 @@
+@import url("https://fonts.cdnfonts.com/css/nulshock");
+
 body,
 h1,
 h2,
@@ -22,26 +24,24 @@ body {
   margin: 0;
 }
 [lang="en"] *,
-[lang="en"] body,
-[lang="en"] h1,
-[lang="en"] h2,
-[lang="en"] h3,
-[lang="en"] h4,
-[lang="en"] h5,
-[lang="en"] h6 {
+[lang="en"] body {
   font-family: Testbed;
 }
 [lang="ja"] *,
-[lang="ja"] body,
-[lang="ja"] h1,
-[lang="ja"] h2,
-[lang="ja"] h3,
-[lang="ja"] h4,
-[lang="ja"] h5,
-[lang="ja"] h6 {
+[lang="ja"] body {
   font-family: NotoSansJP;
   word-break: break-word;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Nulshock", sans-serif !important;
+}
+
 a,
 button,
 input,
@@ -119,6 +119,7 @@ input[type="number"]::-webkit-outer-spin-button {
     url("./fonts/NaverBD-Heavy.ttf") format("truetype");
   font-weight: 900;
 }
+
 @font-face {
   font-family: Testbed;
   src: url("./fonts/Testbed-Light.eot");
@@ -324,6 +325,7 @@ input[type="number"]::-webkit-outer-spin-button {
   position: relative;
   font-size: 1rem;
   cursor: pointer;
+  font-family: "Nulshock", sans-serif;
 }
 
 /* button disabled */
@@ -338,7 +340,7 @@ input[type="number"]::-webkit-outer-spin-button {
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  height: 1rem;
+  height: 24px;
 }
 
 .waitlist-form {
