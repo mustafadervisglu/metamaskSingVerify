@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import Axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const polygonChainId = "0x89"; // Polygon Mainnet'in zincir ID'si
 
@@ -93,22 +95,39 @@ export default function SignMessage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    } else if (signatures.length > 0) {
+      toast.success(
+        "Thank you for signing. You may return to the game. Enjoy! <br/> Message: " +
+          signatures[0].message +
+          "<br/> Signer: " +
+          signatures[0].address +
+          "<br/> Proof: " +
+          signatures[0].signature +
+          "<br/>"
+      );
+    }
+  }, [error, signatures]);
+
   return (
-    <div className="sign-message">
-      {error && <p className="error-message">{error}</p>}
-      {signatures.map((sig, idx) => (
-        <div key={idx} className="signature-details">
-          <p>Thank you for signing. You may return to the game. Enjoy!</p>
-          <p>Message: {sig.message}</p>
-          <p>Signer: {sig.address}</p>
-          <p>Proof:</p>
-          <textarea
-            readOnly
-            className="signature-textarea"
-            value={sig.signature}
-          />
-        </div>
-      ))}
-    </div>
+    <ToastContainer />
+    // <div className="sign-message">
+    //   {error && <p className="error-message">{error}</p>}
+    //   {signatures.map((sig, idx) => (
+    //     <div key={idx} className="signature-details">
+    //       <p>Thank you for signing. You may return to the game. Enjoy!</p>
+    //       <p>Message: {sig.message}</p>
+    //       <p>Signer: {sig.address}</p>
+    //       <p>Proof:</p>
+    //       <textarea
+    //         readOnly
+    //         className="signature-textarea"
+    //         value={sig.signature}
+    //       />
+    //     </div>
+    //   ))}
+    // </div>
   );
 }
