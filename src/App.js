@@ -1,6 +1,7 @@
-import SignMessage from "./SignMessage";
-import VerifyMessage from "./VerifyMessage";
+import { addPolygonNetwork, signMessage } from "./SignMessage";
+import axios from "axios";
 import * as yup from "yup";
+import { toast, ToastContainer } from "react-toastify";
 
 import "./app.styles.css";
 
@@ -12,6 +13,7 @@ import "./fonts/NaverBD-ExtraBold.ttf";
 import "./fonts/NaverBD-Heavy.ttf";
 import "./fonts/nulshock bd.otf";
 import { Field, Form, Formik } from "formik";
+import { useEffect, useState } from "react";
 
 const FormSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -20,6 +22,9 @@ const FormSchema = yup.object().shape({
 });
 
 export default function App() {
+  const [error, setError] = useState("");
+  const [uuid, setUuid] = useState("");
+  const [signatures, setSignatures] = useState([]);
   const handleSubmit = (values) => {
     let interestedToken = values.interestedToken;
 
@@ -56,14 +61,64 @@ export default function App() {
       },
       body: JSON.stringify(req_data),
     });
-
-    console.log(values);
   };
+
+  const register = async (uuid, walletAddress) => {
+    try {
+      const json = JSON.stringify({
+        matchId: uuid,
+        userAddress: walletAddress,
+      });
+      await axios.post("https://wossk8w.84.247.185.219.sslip.io/user", json, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (e) {
+      console.error("Error during API call:", e);
+    }
+  };
+
+  useEffect(() => {
+    addPolygonNetwork();
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    setUuid(urlParams.get("id"));
+  }, []);
+
+  const handleSign = async () => {
+    if (!uuid) return;
+    setError("");
+    const sig = await signMessage({
+      setError,
+      message: uuid,
+    });
+    if (sig) {
+      setSignatures([...signatures, sig]);
+      register(uuid, sig.address);
+    }
+  };
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    } else if (signatures.length > 0) {
+      toast.success(
+        "Thank you for signing. You may return to the game. Enjoy! <br/> Message: " +
+          signatures[0].message +
+          "<br/> Signer: " +
+          signatures[0].address +
+          "<br/> Proof: " +
+          signatures[0].signature +
+          "<br/>"
+      );
+    }
+  }, [error, signatures]);
 
   return (
     <div className="waitlist">
       <div className="w-full lg:w-1/2">
-        <SignMessage />
+        <ToastContainer />
       </div>
       <a href="https://asilium.io/" className="btn-back">
         <svg
@@ -93,6 +148,7 @@ export default function App() {
           the Manage web3 Relationships
         </h2>
       </div>
+
       <Formik
         validationSchema={FormSchema}
         validateOnBlur
@@ -106,6 +162,9 @@ export default function App() {
       >
         {({ errors }) => (
           <Form className="waitlist-form">
+            <button className="connect-wallet-btn" onClick={handleSign}>
+              Connect Wallet
+            </button>
             <Field
               type="text"
               name="name"
