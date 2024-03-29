@@ -147,7 +147,7 @@ export default function App() {
     <div className="waitlist">
       <div className="w-full lg:w-1/2">
         <ToastContainer
-          position="top-center"
+          position="bottom-left"
           autoClose={false}
           newestOnTop
           closeOnClick
