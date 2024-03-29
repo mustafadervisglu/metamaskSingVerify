@@ -1,7 +1,7 @@
 import { addPolygonNetwork, signMessage } from "./SignMessage";
 import axios from "axios";
 import * as yup from "yup";
-import { toast, ToastContainer } from "react-toastify";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 import "./app.styles.css";
 
@@ -103,14 +103,42 @@ export default function App() {
     if (error) {
       toast.error(error);
     } else if (signatures.length > 0) {
-      toast.success(
-        "Thank you for signing. You may return to the game. Enjoy! <br/> Message: " +
-          signatures[0].message +
-          "<br/> Signer: " +
-          signatures[0].address +
-          "<br/> Proof: " +
-          signatures[0].signature +
-          "<br/>"
+      toast(
+        <div>
+          <p
+            style={{
+              maxWidth: "calc(var(--toastify-toast-width) - 40px)",
+              wordBreak: "break-word",
+            }}
+          >
+            Thank you for signing. You may return to the game. Enjoy!
+          </p>
+          <p
+            style={{
+              maxWidth: "calc(var(--toastify-toast-width) - 40px)",
+              wordBreak: "break-word",
+            }}
+          >
+            Message: {signatures[0].message}
+          </p>
+          <p
+            style={{
+              maxWidth: "calc(var(--toastify-toast-width) - 40px)",
+              wordBreak: "break-word",
+            }}
+          >
+            Signer: {signatures[0].address}
+          </p>
+          <p
+            style={{
+              maxWidth: "calc(var(--toastify-toast-width) - 40px)",
+              wordBreak: "break-word",
+            }}
+          >
+            {" "}
+            Proof: {signatures[0].signature}{" "}
+          </p>
+        </div>
       );
     }
   }, [error, signatures]);
@@ -118,7 +146,17 @@ export default function App() {
   return (
     <div className="waitlist">
       <div className="w-full lg:w-1/2">
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          theme="dark"
+          transition={Bounce}
+        />
       </div>
       <a href="https://asilium.io/" className="btn-back">
         <svg
