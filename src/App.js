@@ -155,7 +155,7 @@ export default function App() {
 
   return (
     <div className="waitlist">
-      <div className="w-full lg:w-1/2 hidden">
+      <div className="w-full lg:w-1/2 absolute">
         <ToastContainer
           position="bottom-left"
           autoClose={false}
