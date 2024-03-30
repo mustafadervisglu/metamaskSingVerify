@@ -12,20 +12,24 @@ import "./fonts/NaverBD-Bold.ttf";
 import "./fonts/NaverBD-ExtraBold.ttf";
 import "./fonts/NaverBD-Heavy.ttf";
 import "./fonts/nulshock bd.otf";
-import { Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import { Field, Form, Formik, useFormikContext } from "formik";
+import { useEffect, useState, useRef } from "react";
 
 const FormSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   interestedToken: yup.number().required("Interested token is required"),
+  walletAddress: yup.string().required("Wallet address is required"),
 });
 
 export default function App() {
   const [error, setError] = useState("");
   const [uuid, setUuid] = useState("");
   const [signatures, setSignatures] = useState([]);
-  const handleSubmit = (values) => {
+  const [walletAddress, setWalletAddress] = useState("");
+  const FormRef = useRef(null);
+
+  const handleSubmit = async (values) => {
     let interestedToken = values.interestedToken;
 
     switch (interestedToken) {
@@ -45,32 +49,39 @@ export default function App() {
         interestedToken = "1000$+";
         break;
     }
+    const walletAddress = signatures[0].address;
+
+    if (!walletAddress) return toast.error("Please connect your wallet");
 
     const req_data = {
       data: {
         full_name: values.name,
         email: values.email,
         interested_amount: interestedToken,
+        wallet_id: walletAddress,
       },
     };
-
-    fetch("https://api.asilium.io/api/wishlist-forms", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(req_data),
-    })
-      .then((response) => {
-        if (response.ok) {
-          toast.success("Successfully submitted");
-        } else {
-          toast.error("Error submitting the form");
-        }
+    try {
+      fetch("https://api.asilium.io/api/wishlist-forms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req_data),
       })
-      .catch((error) => {
-        toast.error("Error submitting the form");
-      });
+        .then((response) => {
+          if (response.ok) {
+            toast.success("Successfully submitted");
+          } else {
+            toast.error("Error submitting the form");
+          }
+        })
+        .catch((error) => {
+          toast.error("Error submitting the form");
+        });
+    } catch (error) {
+      toast.error("Error submitting the form");
+    }
   };
 
   const register = async (uuid, walletAddress) => {
@@ -96,7 +107,7 @@ export default function App() {
     setUuid(urlParams.get("id"));
   }, []);
 
-  const handleSign = async () => {
+  const handleSign = async (setFieldValue) => {
     if (!uuid) return;
     setError("");
     const sig = await signMessage({
@@ -105,6 +116,7 @@ export default function App() {
     });
     if (sig) {
       setSignatures([...signatures, sig]);
+      setFieldValue("walletAddress", sig.address);
       register(uuid, sig.address);
     }
   };
@@ -200,6 +212,7 @@ export default function App() {
       </div>
 
       <Formik
+        innerRef={FormRef}
         validationSchema={FormSchema}
         validateOnBlur
         validateOnMount
@@ -207,12 +220,17 @@ export default function App() {
           name: "",
           email: "",
           interestedToken: 1,
+          walletAddress: "",
         }}
         onSubmit={handleSubmit}
       >
-        {({ errors }) => (
+        {({ errors, setFieldValue, values }) => (
           <Form className="waitlist-form">
-            <button className="connect-wallet-btn" onClick={handleSign}>
+            <button
+              className="connect-wallet-btn"
+              onClick={() => handleSign(setFieldValue)}
+              type="button"
+            >
               Connect Wallet
             </button>
             <Field
@@ -248,7 +266,12 @@ export default function App() {
             </div>
             <button
               type="submit"
-              disabled={errors.email || errors.interestedToken || errors.name}
+              disabled={
+                errors.email ||
+                errors.interestedToken ||
+                errors.name ||
+                errors.walletAddress
+              }
             >
               Join the waitlist
               <span className="btn-icon">
