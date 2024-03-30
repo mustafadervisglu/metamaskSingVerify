@@ -60,7 +60,17 @@ export default function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(req_data),
-    });
+    })
+      .then((response) => {
+        if (response.ok) {
+          toast.success("Successfully submitted");
+        } else {
+          toast.error("Error submitting the form");
+        }
+      })
+      .catch((error) => {
+        toast.error("Error submitting the form");
+      });
   };
 
   const register = async (uuid, walletAddress) => {
@@ -145,7 +155,7 @@ export default function App() {
 
   return (
     <div className="waitlist">
-      <div className="w-full lg:w-1/2">
+      <div className="w-full lg:w-1/2 hidden">
         <ToastContainer
           position="bottom-left"
           autoClose={false}
@@ -158,28 +168,30 @@ export default function App() {
           transition={Bounce}
         />
       </div>
-      <a href="https://asilium.io/" className="btn-back">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          width="1rem"
-          height="1rem"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 19.5 8.25 12l7.5-7.5"
-          />
-        </svg>
-        Return
-      </a>
-      <a href="/" className="logo-container">
-        <img src="/asilium.png" alt="asilium" />
-      </a>
+      <div className="top-navs">
+        <a href="https://asilium.io/" className="btn-back">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            width="1rem"
+            height="1rem"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5 8.25 12l7.5-7.5"
+            />
+          </svg>
+          Return
+        </a>
+        <a href="/" className="logo-container">
+          <img src="/asilium.png" alt="asilium" />
+        </a>
+      </div>
       <div>
         <h1 className="waitlist-title">Join the waitlist</h1>
         <h2 className="waitlist-title waitlist-title-second">
