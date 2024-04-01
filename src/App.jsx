@@ -19,14 +19,13 @@ const FormSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   interestedToken: yup.number().required("Interested token is required"),
-  walletAddress: yup.string().required("Wallet address is required"),
+  walletAddress: yup.string(),
 });
 
 export default function App() {
   const [error, setError] = useState("");
   const [uuid, setUuid] = useState("");
   const [signatures, setSignatures] = useState([]);
-  const [walletAddress, setWalletAddress] = useState("");
   const FormRef = useRef(null);
 
   const handleSubmit = async (values) => {
@@ -107,7 +106,7 @@ export default function App() {
     setUuid(urlParams.get("id"));
   }, []);
 
-  const handleSign = async (setFieldValue) => {
+  const handleSign = async () => {
     if (!uuid) return;
     setError("");
     const sig = await signMessage({
@@ -116,7 +115,8 @@ export default function App() {
     });
     if (sig) {
       setSignatures([...signatures, sig]);
-      setFieldValue("walletAddress", sig.address);
+      if (FormRef.current)
+        FormRef.current.setFieldValue("walletAddress", sig.address);
       register(uuid, sig.address);
     }
   };
@@ -204,6 +204,20 @@ export default function App() {
           <img src="/asilium.png" alt="asilium" />
         </a>
       </div>
+      <div className="flex flex-col gap-4 items-center">
+        <button
+          className="connect-wallet-btn"
+          onClick={() => handleSign()}
+          type="button"
+        >
+          Connect Wallet for game
+        </button>
+        <p className="text-white">
+          The connection may not be possible because metamask is not installed
+          or cannot be started.
+        </p>
+      </div>
+
       <div>
         <h1 className="waitlist-title">Join the waitlist</h1>
         <h2 className="waitlist-title waitlist-title-second">
@@ -226,13 +240,6 @@ export default function App() {
       >
         {({ errors, setFieldValue, values }) => (
           <Form className="waitlist-form">
-            <button
-              className="connect-wallet-btn"
-              onClick={() => handleSign(setFieldValue)}
-              type="button"
-            >
-              Connect Wallet
-            </button>
             <Field
               type="text"
               name="name"
